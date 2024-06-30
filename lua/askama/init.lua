@@ -6,6 +6,7 @@ local treesitter = require("askama.treesitter")
 ---@field template_dirs string[]|nil -- List of directories to look for templates
 ---@field enable_snippets boolean|nil -- Install luasnip snippets for askama
 ---@field snippet_autopairs boolean|nil -- Enable this if you are using autopairs to prevent conflicts
+---@field branch string|nil -- Branch to download the parser from (default: stable)
 
 local M = {}
 
@@ -20,6 +21,7 @@ function M.defaults()
     parser_path = nil,
     enable_snippets = false,
     snippet_autopairs = false,
+    branch = "stable",
   }
 
   return defaults

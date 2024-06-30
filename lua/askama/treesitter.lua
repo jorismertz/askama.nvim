@@ -2,14 +2,15 @@ local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 
 local M = {}
 
----@param path string
-local function download_grammar(path)
+---@param path string -- Path to download the grammar to
+---@param branch string -- Branch to download the grammar from
+local function download_grammar(path, branch)
   vim.fn.system({
     "git",
     "clone",
     "--filter=blob:none",
     "https://github.com/jorismertz/tree-sitter-htmlaskama.git",
-    "--branch=" .. "main",
+    "--branch=" .. branch,
     path,
   })
 end
@@ -56,7 +57,7 @@ function M.setup(opts)
   local path = vim.fn.stdpath("data") .. "/askama/grammar"
 
   if not opts.parser_path and not installed_grammar(path) then
-    download_grammar(path)
+    download_grammar(path, opts.branch)
   end
 
   ---@diagnostic disable-next-line
