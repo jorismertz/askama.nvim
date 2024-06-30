@@ -5,6 +5,8 @@ local treesitter = require("askama.treesitter")
 ---@field target_filetype string|nil -- What filetypes should be targeted
 ---@field parser_path string|nil -- Different path to the parser for development purposes
 ---@field template_dirs string[]|nil -- List of directories to look for templates
+---@field install_snippets boolean|nil -- Install luasnip snippets for askama
+---@field snippet_autopairs boolean|nil -- Enable this if you are using autopairs to prevent conflicts
 
 local M = {}
 
@@ -18,6 +20,8 @@ function M.defaults()
     target_filetype = "htmlaskama",
     template_dirs = { "templates" },
     parser_path = nil,
+    install_snippets = false,
+    snippet_autopairs = false,
   }
 
   return defaults
@@ -45,6 +49,10 @@ function M.setup(opts)
   vim.filetype.add({
     pattern = patterns,
   })
+
+  if opts.install_snippets then
+    require("askama.luasnip").setup(opts)
+  end
 
   vim.treesitter.language.register("htmlaskama", opts.target_filetype)
 

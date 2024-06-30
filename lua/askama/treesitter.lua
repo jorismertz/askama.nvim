@@ -24,29 +24,30 @@ local function installed_grammar(path)
   return true
 end
 
----@param type string -- injections, queries, class, etc
----@param content string
-local function install_query(type, content)
-  vim.treesitter.query.set("htmlaskama", type, content)
-end
-
-local function read_query_file(path)
-  local content = vim.fn.readfile(path)
-  return table.concat(content, "\n")
-end
+-- FIX: Highlighting only shows up in telescope previews. when entering document it dissapears
+-- ---@param type string -- injections, queries, class, etc
+-- ---@param content string
+-- local function install_query(type, content)
+--   vim.treesitter.query.set("htmlaskama", type, content)
+-- end
 
 ---@param parser_path string
 local function install_queries(parser_path)
   local queries = {
-    -- "class",
+    "class",
     "injections",
     "highlights",
   }
 
+  -- FIX: This is a hacky way to install queries. 
+  local conf_path = vim.fn.stdpath("config")
+  vim.uv.fs_mkdir(conf_path .. "/queries/", 511)
+  vim.uv.fs_rmdir(conf_path .. "/queries/htmlaskama")
+  vim.uv.fs_mkdir(conf_path .. "/queries/htmlaskama", 511)
+
   for _, query in ipairs(queries) do
     local path = string.format("%s/queries/%s.scm", parser_path, query)
-    local content = read_query_file(path)
-    install_query(query, content)
+    vim.uv.fs_symlink(path, conf_path .. "/queries/htmlaskama/" .. query .. ".scm", {})
   end
 end
 
