@@ -46,7 +46,6 @@ local function install_queries(parser_path)
   for _, query in ipairs(queries) do
     local path = string.format("%s/queries/%s.scm", parser_path, query)
     local content = read_query_file(path)
-    -- print(content)
     install_query(query, content)
   end
 end
@@ -79,7 +78,6 @@ function M.setup(opts)
     },
   }
 
-  print("parser_path", opts.parser_path or path)
   install_queries(opts.parser_path or path)
 end
 
