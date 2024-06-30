@@ -68,7 +68,7 @@ function M.setup(opts)
       requires_generate_from_grammar = false,
     },
 
-    filetype = opts.source_file_ext
+    filetype = opts.file_extension,
   }
 
   require("nvim-treesitter.configs").setup {

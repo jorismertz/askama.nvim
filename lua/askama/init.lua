@@ -1,11 +1,10 @@
 local treesitter = require("askama.treesitter")
 
 ---@class AskamaConfig
----@field source_file_ext string|string[]|nil -- What file extension should be targeted
----@field target_filetype string|nil -- What filetypes should be targeted
+---@field file_extension string|nil -- What file extension(s) should be targeted
 ---@field parser_path string|nil -- Different path to the parser for development purposes
 ---@field template_dirs string[]|nil -- List of directories to look for templates
----@field install_snippets boolean|nil -- Install luasnip snippets for askama
+---@field enable_snippets boolean|nil -- Install luasnip snippets for askama
 ---@field snippet_autopairs boolean|nil -- Enable this if you are using autopairs to prevent conflicts
 
 local M = {}
@@ -16,11 +15,10 @@ M.ns = vim.api.nvim_create_namespace("askama")
 function M.defaults()
   ---@class AskamaConfig
   local defaults = {
-    source_file_ext = "html",
-    target_filetype = "htmlaskama",
+    file_extension = "html",
     template_dirs = { "templates" },
     parser_path = nil,
-    install_snippets = false,
+    enable_snippets = false,
     snippet_autopairs = false,
   }
 
@@ -43,25 +41,25 @@ function M.setup(opts)
 
   local patterns = { }
   for _, dir in ipairs(opts.template_dirs) do
-    patterns[".*/" .. dir .. "/.*%." .. opts.source_file_ext] = opts.target_filetype
+    patterns[".*/" .. dir .. "/.*%." .. opts.file_extension] = "htmlaskama"
   end
 
   vim.filetype.add({
     pattern = patterns,
   })
 
-  if opts.install_snippets then
+  if opts.enable_snippets then
     require("askama.luasnip").setup(opts)
   end
 
-  vim.treesitter.language.register("htmlaskama", opts.target_filetype)
+  vim.treesitter.language.register("htmlaskama", "htmlaskama")
 
   for _, dir in ipairs(opts.template_dirs) do
     vim.api.nvim_create_autocmd("BufRead", {
-      pattern = "**/" .. dir .. "/**/*." .. opts.source_file_ext,
+      pattern = "**/" .. dir .. "/**/*." .. opts.file_extension,
       callback = function()
         if M.is_askama() then
-          vim.bo.filetype = opts.target_filetype
+          vim.bo.filetype = "htmlaskama"
         end
       end
     })
