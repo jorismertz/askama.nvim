@@ -4,8 +4,8 @@ local treesitter = require("askama.treesitter")
 ---@class AskamaConfig
 ---@field source_file_ext string|string[]|nil
 ---@field target_filetype string|nil
----@field treesitter_parser string|nil
----@field patterns vim.filetype.mapping|nil
+---@field parser_path string|nil
+---@field template_dirs string[]|nil
 
 local M = {}
 
@@ -16,12 +16,10 @@ function M._get_defaults()
   local opts = {
     source_file_ext = "html",
     target_filetype = "htmlaskama",
-    treesitter_parser = "htmlaskama",
+    template_dirs = { "templates" },
+    parser_path = nil,
   }
 
-  opts.patterns = {
-    [".*/templates/.*%." .. opts.source_file_ext] = opts.target_filetype,
-  }
   return opts
 end
 
@@ -30,31 +28,40 @@ M.defaults = M._get_defaults()
 
 ---@private
 function M:is_askama()
-	local cargo_toml = vim.fn.glob("Cargo.toml")
-	return vim.fn.len(cargo_toml) ~= 0
+  local cargo_toml = vim.fn.glob("Cargo.toml")
+  return vim.fn.len(cargo_toml) ~= 0
 end
 
 
 ---@param opts AskamaConfig
 function M:setup(opts)
+  print("askama setup", vim.inspect(opts))
   opts = vim.tbl_extend("force", M.defaults, opts or {})
   treesitter.setup(opts)
 
-	vim.filetype.add({
-		pattern = opts.patterns,
-	})
+  local patterns = { }
+  for _, dir in ipairs(opts.template_dirs) do
+    patterns[".*/" .. dir .. "/.*%." .. opts.source_file_ext] = opts.target_filetype
+  end
 
-	vim.treesitter.language.register(opts.treesitter_parser, opts.target_filetype)
+  vim.filetype.add({
+    pattern = patterns,
+  })
 
-	-- vim.api.nvim_create_autocmd("BufRead", {
-	-- 	pattern = "**/templates/*." .. opts.source_file_ext,
-	-- 	callback = function()
-	-- 		if M:is_askama() then
-	-- 			vim.bo.filetype = opts.target_filetype
-	-- 		end
-	-- 	end,
-	-- })
+  vim.treesitter.language.register("htmlaskama", opts.target_filetype)
+
+  for _, dir in ipairs(opts.template_dirs) do
+    vim.api.nvim_create_autocmd("BufRead", {
+      pattern = "**/" .. dir .. "/**/*." .. opts.source_file_ext,
+      callback = function()
+        if M:is_askama() then
+          vim.bo.filetype = opts.config.target_filetype
+        end
+      end
+    })
+  end
 end
+
 
 return M
 
