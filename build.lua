@@ -12,3 +12,8 @@ for _, query_name in ipairs(QUERIES) do
   vim.fn.system('curl -LJ "' .. url .. '" > ' .. query_path .. query_name .. ".scm")
 end
 
+require('askama.treesitter').setup({
+  branch = BRANCH,
+})
+
+vim.cmd("TSUpdate htmlaskama")
