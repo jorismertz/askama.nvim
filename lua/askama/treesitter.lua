@@ -3,7 +3,7 @@ local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 local M = {}
 
 local queries = {
-  hightlights = {
+  highlights = {
     "(tag_name) @tag",
     "(attribute_name) @attribute",
     "(quoted_attribute_value) @string",
@@ -41,8 +41,8 @@ function M.setup(opts)
 	---@diagnostic disable-next-line
 	parser_config.htmlaskama = {
 		install_info = {
-			url = "https://github.com/jorismertz/tree-sitter-htmlaskama",
-			branch = opts.branch,
+			url = opts.parser_path or "https://github.com/jorismertz/tree-sitter-htmlaskama",
+			branch = opts.parser_path and nil or opts.branch,
 			files = { "src/parser.c", "src/scanner.c" },
 			generate_requires_npm = false,
 			requires_generate_from_grammar = false,
