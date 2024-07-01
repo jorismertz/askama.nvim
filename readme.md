@@ -9,6 +9,7 @@
 ```lua
 {
   "jorismertz/askama.nvim",
+  build = "build.lua", -- installs treesitter queries for syntax highlighting
   dependencies = {
     "nvim-treesitter/nvim-treesitter",
     -- Uncomment if `enable_snippets` is set to true

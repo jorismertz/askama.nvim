@@ -1,5 +1,7 @@
 return {
   "jorismertz/askama.nvim",
   opts = {},
-  lazy = true
+  lazy = true,
+  build = "build.lua",
+  event = "VeryLazy",
 }
