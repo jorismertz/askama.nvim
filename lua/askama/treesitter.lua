@@ -2,85 +2,64 @@ local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 
 local M = {}
 
----@param path string -- Path to download the grammar to
----@param branch string -- Branch to download the grammar from
-local function download_grammar(path, branch)
-  vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/jorismertz/tree-sitter-htmlaskama.git",
-    "--branch=" .. branch,
-    path,
-  })
-end
+local queries = {
+  hightlights = {
+    "(tag_name) @tag",
+    "(attribute_name) @attribute",
+    "(quoted_attribute_value) @string",
+    "(attribute_value) @string",
+    "(extends_statement(path) @string)",
+    "(include_statement(path) @string)",
+    "(comment) @comment",
+    '[ "<" ">" "</" "/>" "{{" "}}" "{%" "%}" ] @punctuation.bracket',
+  },
+  injections = {
+    "((expression",
+    "(expression_content) @injection.content)",
+    '(#set! injection.language "rust"))',
+    "((if_statement",
+    "(statement_content) @injection.content)",
+    '(#set! injection.language "rust"))',
+  },
+}
 
----@param path string
----@return boolean
-local function installed_grammar(path)
-  if not vim.loop.fs_stat(path) then
-    return false
-  end
-
-  return true
-end
-
--- FIX: Highlighting only shows up in telescope previews. when entering document it dissapears
--- ---@param type string -- injections, queries, class, etc
--- ---@param content string
--- local function install_query(type, content)
---   vim.treesitter.query.set("htmlaskama", type, content)
--- end
-
----@param parser_path string
-local function install_queries(parser_path)
-  local queries = {
-    "class",
-    "injections",
-    "highlights",
-  }
-
-  -- FIX: This is a hacky way to install queries. 
+local function install_queries()
   local conf_path = vim.fn.stdpath("config")
-  vim.uv.fs_mkdir(conf_path .. "/queries/", 511)
-  vim.uv.fs_rmdir(conf_path .. "/queries/htmlaskama")
-  vim.uv.fs_mkdir(conf_path .. "/queries/htmlaskama", 511)
+  local query_path = conf_path .. "/queries/htmlaskama/"
+  vim.fn.mkdir(query_path, "p")
 
-  for _, query in ipairs(queries) do
-    local path = string.format("%s/queries/%s.scm", parser_path, query)
-    vim.uv.fs_symlink(path, conf_path .. "/queries/htmlaskama/" .. query .. ".scm", {})
+  for query_name, content in pairs(queries) do
+    local query_file = query_path .. query_name .. ".scm"
+    vim.fn.writefile(content, query_file)
   end
 end
 
 ---@param opts AskamaConfig
 function M.setup(opts)
-  local path = vim.fn.stdpath("data") .. "/askama/grammar"
+	local path = vim.fn.stdpath("data") .. "/askama/grammar"
 
-  if not opts.parser_path and not installed_grammar(path) then
-    download_grammar(path, opts.branch)
-  end
+	---@diagnostic disable-next-line
+	parser_config.htmlaskama = {
+		install_info = {
+			url = "https://github.com/jorismertz/tree-sitter-htmlaskama",
+			branch = opts.branch,
+			files = { "src/parser.c", "src/scanner.c" },
+			generate_requires_npm = false,
+			requires_generate_from_grammar = false,
+		},
 
-  ---@diagnostic disable-next-line
-  parser_config.htmlaskama = {
-    install_info = {
-      url = opts.parser_path or path,
-      files = { "src/parser.c", "src/scanner.c" },
-      generate_requires_npm = false,
-      requires_generate_from_grammar = false,
-    },
+		filetype = opts.file_extension,
+	}
 
-    filetype = opts.file_extension,
-  }
+	install_queries()
 
-  require("nvim-treesitter.configs").setup {
-    ensure_installed = "htmlaskama",
-    autoinstall = true,
-    highlight = {
-      enable = true,
-    },
-  }
-
-  install_queries(opts.parser_path or path)
+	require("nvim-treesitter.configs").setup({
+		ensure_installed = "htmlaskama",
+		autoinstall = true,
+		highlight = {
+			enable = true,
+		},
+	})
 end
 
 return M
