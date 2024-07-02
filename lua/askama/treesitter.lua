@@ -7,7 +7,7 @@ function M.setup(opts)
 	---@diagnostic disable-next-line
 	parser_config.htmlaskama = {
 		install_info = {
-			url = opts.parser_path or "https://github.com/jorismertz/tree-sitter-htmlaskama",
+			url = opts.parser_path or "https://github.com/juliamertz/tree-sitter-htmlaskama",
 			branch = opts.parser_path and nil or opts.branch,
 			files = { "src/parser.c", "src/scanner.c" },
 			generate_requires_npm = false,

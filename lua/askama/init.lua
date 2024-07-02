@@ -51,7 +51,7 @@ function M.setup(opts)
   })
 
   if opts.enable_snippets then
-    require("askama.luasnip").setup(opts)
+    require("askama.luasnip").setup()
   end
 
   vim.treesitter.language.register("htmlaskama", "htmlaskama")

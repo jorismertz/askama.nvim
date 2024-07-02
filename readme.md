@@ -8,7 +8,7 @@
 
 ```lua
 {
-  "jorismertz/askama.nvim",
+  "juliamertz/askama.nvim",
   build = "build.lua", -- installs treesitter queries for syntax highlighting
   dependencies = {
     "nvim-treesitter/nvim-treesitter",
@@ -16,7 +16,6 @@
     -- "L3MON4D3/LuaSnip",
   },
   opts = {
-    -- Branch for the askama treesitter parser (https://github.com/jorismertz/tree-sitter-htmlaskama)
     branch = "stable",
     -- What file extension should use the askama treesitter grammar
     file_extension = "html",

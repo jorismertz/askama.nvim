@@ -1,6 +1,6 @@
 local QUERIES = { "class", "highlights", "injections" }
 local BRANCH = "stable"
-local REPO = "jorismertz/tree-sitter-htmlaskama"
+local REPO = "juliamertz/tree-sitter-htmlaskama"
 
 local config_path = vim.fn.stdpath("config")
 local query_path = config_path .. "/queries/htmlaskama/"
